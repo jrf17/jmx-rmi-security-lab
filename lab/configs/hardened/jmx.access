@@ -1,0 +1,17 @@
+# JMX access control template for the hardened profile.
+#
+# Java properties format: <username>=<access-level>
+#   readonly  — can read attributes and metadata, cannot invoke operations
+#               or write attributes.
+#   readwrite — full access (the controlled laboratory operation).
+#
+# The username keys correspond to entries in the generated JMX password file
+# (lab/.secrets/jmx.password), created by scripts/generate-secrets.sh. This
+# file is static (no secrets) and therefore committed.
+#
+# Note on the JDK implementation: JMXFileAuthenticator maps each authenticated
+# username to a javax.management.remote.JMXPrincipal(username), and the access
+# controller keys this file on that principal's name — i.e. the raw username.
+
+operator=readwrite
+readonly=readonly

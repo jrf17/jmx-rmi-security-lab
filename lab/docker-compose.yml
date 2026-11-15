@@ -1,0 +1,66 @@
+# JMX/RMI Security Research Lab — orchestration.
+#
+# Security boundaries (see SECURITY.md):
+#   * The lab runs on an INTERNAL bridge network with no external routing.
+#   * No JMX/RMI port is published to the host, LAN, or Internet.
+#   * Containers drop all Linux capabilities, run non-root, and use a
+#     read-only root filesystem with a private tmpfs.
+#   * Vulnerable mode is opt-in only (lab-up.sh refuses without --ack-insecure-lab).
+#
+# Per-mode environment (LAB_MODE, JAVA_TOOL_OPTIONS for the target) is
+# provided by lab-up.sh via --env-file (generated under lab/.secrets/),
+# so this file stays static and secret-free.
+
+name: jmx-rmi-lab
+
+services:
+  target:
+    build:
+      context: ..
+      dockerfile: lab/application/Dockerfile
+    image: jmx-rmi-lab-target:local
+    hostname: target
+    networks: [ labnet ]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    cap_drop: [ ALL ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 512m
+    cpus: 1.0
+    # No `ports:` mapping — the JMX/RMI endpoints stay inside the network.
+    expose: [ "1099", "9090" ]
+    environment:
+      LAB_MODE: ${LAB_MODE:-hardened}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:-}
+    volumes:
+      - ./.secrets:/secrets:ro
+    entrypoint: ["java", "-jar", "/app/target.jar"]
+    command:
+      - --mode
+      - ${LAB_MODE:-hardened}
+      - --hostname
+      - target
+
+  verifier:
+    build:
+      context: ..
+      dockerfile: lab/client/Dockerfile
+    image: jmx-rmi-lab-verifier:local
+    hostname: verifier
+    networks: [ labnet ]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    cap_drop: [ ALL ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 512m
+    cpus: 1.0
+    volumes:
+      - ./.secrets:/secrets:ro
+    entrypoint: ["java", "-jar", "/app/verifier.jar"]
+
+networks:
+  labnet:
+    # internal: true — no outbound or inbound routing beyond the lab network.
+    internal: true

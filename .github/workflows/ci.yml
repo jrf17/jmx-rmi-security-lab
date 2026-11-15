@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit:
+    name: Build and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run unit tests (Maven in container)
+        run: |
+          docker run --rm -v "$PWD":/build -w /build/lab \
+            maven:3.9-eclipse-temurin-21 mvn -B test
+
+  integration:
+    name: Isolated Docker integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run vulnerable-mode verification
+        run: |
+          ./scripts/lab-up.sh --mode vulnerable --ack-insecure-lab
+          ./scripts/verify.sh --mode vulnerable
+          ./scripts/lab-down.sh
+      - name: Run hardened-mode verification
+        run: |
+          ./scripts/lab-up.sh --mode hardened
+          ./scripts/verify.sh --mode hardened
+          ./scripts/lab-down.sh

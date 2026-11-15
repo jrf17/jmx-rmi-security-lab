@@ -1,0 +1,30 @@
+# JMX/RMI Security Research Lab — build artifacts and generated secrets
+target/
+*.class
+*.jar
+!maven-wrapper.jar
+
+# Generated laboratory secrets (certs, credentials, access files)
+lab/.secrets/
+lab/secrets/
+*.p12
+*.jks
+*.pem
+*.key
+*.crt
+*.password
+*.access
+# The static access-control template is committed; only generated secrets are ignored.
+!lab/configs/hardened/jmx.access
+
+# Maven
+.mvn/timing.properties
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Evidence scratch (keep committed, sanitized evidence only)
+evidence/.scratch/

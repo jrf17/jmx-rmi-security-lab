@@ -1,0 +1,11 @@
+# Keep the Docker build context lean and free of secrets.
+.git
+**/target
+lab/.secrets
+*.log
+evidence
+research
+docs
+tests
+README.md
+SECURITY.md

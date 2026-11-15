@@ -1,0 +1,51 @@
+# JMX-RMI Security Lab — hardened-mode verification evidence
+# Generated: 2026-11-15T23:42:03Z
+# Host: Linux 7.0.0-43-generic (x86_64)
+# Docker: Docker version 29.9.3, build 5457199
+# Compose: Docker Compose version v5.7.1
+# JDK (build image): Temurin 21 (maven:3.9-eclipse-temurin-21)
+
+----- hardened: operator (valid creds + TLS) invokes -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/client-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=false ApplicationStatus=OPERATIONAL StateChangeCount=0
+PASS  invoke                           enableMaintenance completed
+PASS  verify-state-change              StateChangeCount 0 -> 1
+RESULT: PASS (4/4 assertions passed)
+----- hardened: operator (valid creds + TLS) invokes: ok -----
+
+----- hardened: readonly (valid creds) reads, no write -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/client-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=true ApplicationStatus=OPERATIONAL StateChangeCount=1
+RESULT: PASS (2/2 assertions passed)
+----- hardened: readonly (valid creds) reads, no write: ok -----
+
+----- hardened: readonly attempts state change (must be DENIED) -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/client-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=true ApplicationStatus=OPERATIONAL StateChangeCount=1
+FAIL  invoke                           enableMaintenance denied: SecurityException: Access denied! Invalid access level for requested MBeanServer operation.
+RESULT: FAIL (2/3 assertions passed)
+----- hardened: readonly attempts state change (must be DENIED): DENIED (ok) -----
+
+----- hardened: invalid credentials rejected -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/client-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  connection-rejected              authentication/authorization rejected: SecurityException: Authentication failed! Invalid username or password
+RESULT: PASS (1/1 assertions passed)
+----- hardened: invalid credentials rejected: ok -----
+
+----- hardened: anonymous rejected -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/client-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  connection-rejected              authentication/authorization rejected: SecurityException: Authentication failed! Credentials required
+RESULT: PASS (1/1 assertions passed)
+----- hardened: anonymous rejected: ok -----
+
+----- hardened: untrusted TLS client rejected -----
+Picked up JAVA_TOOL_OPTIONS:  -Djavax.net.ssl.trustStore=/secrets/untrusted-trust.p12 -Djavax.net.ssl.trustStorePassword=REDACTED -Djavax.net.ssl.keyStore=/secrets/untrusted-client.p12 -Djavax.net.ssl.keyStorePassword=REDACTED
+PASS  connection-rejected              ConnectIOException: error during JRMP connection establishment; nested exception is: 
+	javax.net.ssl.SSLHandshakeException: (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+RESULT: PASS (1/1 assertions passed)
+----- hardened: untrusted TLS client rejected: ok -----
+
+ALL VERIFY SCENARIOS PASSED

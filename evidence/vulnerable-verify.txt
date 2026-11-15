@@ -1,0 +1,30 @@
+# JMX-RMI Security Lab — vulnerable-mode verification evidence
+# Generated: 2026-11-15T23:41:36Z
+# Host: Linux 7.0.0-43-generic (x86_64)
+# Docker: Docker version 29.9.3, build 5457199
+# Compose: Docker Compose version v5.7.1
+# JDK (build image): Temurin 21 (maven:3.9-eclipse-temurin-21)
+
+----- vulnerable: anonymous connect + enumerate + read -----
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=false ApplicationStatus=OPERATIONAL StateChangeCount=0
+RESULT: PASS (2/2 assertions passed)
+----- vulnerable: anonymous connect + enumerate + read: ok -----
+
+----- vulnerable: anonymous unauthorized state change -----
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=false ApplicationStatus=OPERATIONAL StateChangeCount=0
+PASS  invoke                           enableMaintenance completed
+PASS  verify-state-change              StateChangeCount 0 -> 1
+RESULT: PASS (4/4 assertions passed)
+----- vulnerable: anonymous unauthorized state change: ok -----
+
+----- vulnerable: anonymous revert (disable) -----
+PASS  enumerate                        MaintenanceMode MBean present
+PASS  read-state                       MaintenanceEnabled=true ApplicationStatus=OPERATIONAL StateChangeCount=1
+PASS  invoke                           disableMaintenance completed
+PASS  verify-state-change              StateChangeCount 1 -> 2
+RESULT: PASS (4/4 assertions passed)
+----- vulnerable: anonymous revert (disable): ok -----
+
+ALL VERIFY SCENARIOS PASSED

@@ -36,15 +36,15 @@ controls, tests, and defensible conclusions.
 
 ```
                             ┌──────────────────────────────────────┐
-                            │        Docker bridge (internal)       │
-                            │      no host/LAN/Internet routing     │
-                            │                                        │
-  ┌──────────────────────┐  │    ┌────────────────────────────┐     │
-  │  verifier (client)    │──┼───▶│  target (JMX/RMI server)    │     │
-  │  JMXConnectorFactory  │  │    │  registry :1099 (plain)     │     │
-  │  + TLS client identity│  │    │  connector :9090            │     │
-  └──────────────────────┘  │    │  MaintenanceMode MBean       │     │
-                            │    └────────────────────────────┘     │
+                            │        Docker bridge (internal)      │
+                            │      no host/LAN/Internet routing    │
+                            │                                      │
+  ┌──────────────────────┐  │    ┌────────────────────────────┐    │
+  │ verifier (client)    │──┼───▶│  target (JMX/RMI server)   │    │
+  │ JMXConnectorFactory  │  │    │  registry :1099 (plain)    │    │
+  │ + TLS client identity│  │    │  connector :9090           │    │
+  └──────────────────────┘  │    │  MaintenanceMode MBean     │    │
+                            │    └────────────────────────────┘    │
                             └──────────────────────────────────────┘
 ```
 
